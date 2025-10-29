@@ -9,7 +9,7 @@ load_dotenv()
 DB_HOST = os.getenv("DB_HOST")
 DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
-DB_NAME=os.getenv("DB_NAME") # replace with your MySQL password
+DB_NAME=os.getenv("DB1_NAME") # replace with your MySQL password
 
 # Function to get connection
 def get_connection():
