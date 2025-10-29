@@ -1,11 +1,14 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from rag import RAGSystem
+from chatbot.rag import RAGSystem
 import google.generativeai as genai
 import os
 from datetime import datetime
-from models import ChatRequest, ChatResponse
+from chatbot.models import ChatRequest, ChatResponse
 import mysql.connector   # ✅ added
+from dotenv import load_dotenv
+# Load environment variables from .env file
+load_dotenv()
 
 # -------------------------------
 # 1. Initialize FastAPI app
@@ -24,17 +27,25 @@ app.add_middleware(
 # -------------------------------
 # 2. Configure Gemini API
 # -------------------------------
-os.environ["GOOGLE_API_KEY"] = "AIzaSyCnvAUqlXf5Ee3G3gA48PLecfN8LBRIg5I"
-genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
+google_api_key = os.getenv("GOOGLE_API_KEY")
+if google_api_key:
+    os.environ["GOOGLE_API_KEY"] = google_api_key
+else:
+    print("Warning: GOOGLE_API_KEY not found in environment variables")
+
+DB_HOST = os.getenv("DB_HOST")
+DB_USER = os.getenv("DB_USER")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_NAME=os.getenv("DB_NAME")
 
 # -------------------------------
 # 3. Configure MySQL Database
 # -------------------------------
 db_config = {
-    "host": "localhost",
-    "user": "root",
-    "password": "12345",  # ✅ change this
-    "database": "chatbot"       # ✅ create this in MySQL
+    "host": DB_HOST,
+    "user": DB_USER,
+    "password": DB_PASSWORD,  # ✅ change this
+    "database": DB_NAME       # ✅ create this in MySQL
 }
 
 # connect at startup

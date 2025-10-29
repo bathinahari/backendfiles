@@ -1,15 +1,21 @@
 from fastapi import FastAPI, Form
-from db import save_contact_form
+from contact_form.db import save_contact_form
 from twilio.rest import Client
 import uvicorn
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
 
 app = FastAPI()
 
 # Twilio credentials (get these from your Twilio Console)
-ACCOUNT_SID = "AC788365d8079e60279c3c60a6e406b936"
-AUTH_TOKEN = "ae2cfc8dfa4ee8bcbbe8f2c3cd3a3725"
-TWILIO_WHATSAPP_NUMBER = "whatsapp:+14155238886"  # Twilio sandbox number
-ADMIN_WHATSAPP_NUMBER = "whatsapp:+919493487997"  # Your WhatsApp number
+ACCOUNT_SID = os.getenv("ACCOUNT_SID")
+AUTH_TOKEN = os.getenv("AUTH_TOKEN")
+TWILIO_WHATSAPP_NUMBER = os.getenv("TWILIO_WHATSAPP_NUMBER")  # Twilio sandbox number
+ADMIN_WHATSAPP_NUMBER = os.getenv("ADMIN_WHATSAPP_NUMBER") # Your WhatsApp number
 
 def send_whatsapp_notification(name, email, contact_no, message):
     client = Client(ACCOUNT_SID, AUTH_TOKEN)
@@ -37,6 +43,3 @@ def contact(
     
     return {"status": "success", "message": "Thank you for contacting us!"}
 
-if __name__ == "__main__":
-    
-    uvicorn.run(app, host="localhost", port=5000)
