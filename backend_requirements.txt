@@ -5,3 +5,6 @@ sentence-transformers
 python-dotenv
 google-generativeai
 twilio
+sqlalchemy
+pymysql
+mysql-connector-python
