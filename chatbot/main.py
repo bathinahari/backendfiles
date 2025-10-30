@@ -27,11 +27,15 @@ app.add_middleware(
 # -------------------------------
 # 2. Configure Gemini API
 # -------------------------------
+# -------------------------------
+# 2. Configure Gemini API - FIXED VERSION
+# -------------------------------
 google_api_key = os.getenv("GOOGLE_API_KEY")
 if google_api_key:
-    os.environ["GOOGLE_API_KEY"] = google_api_key
+    genai.configure(api_key=google_api_key)  # ✅ ADD THIS LINE
+    print("✅ Google Gemini API configured successfully")
 else:
-    print("Warning: GOOGLE_API_KEY not found in environment variables")
+    print("❌ ERROR: GOOGLE_API_KEY not found in environment variables")
 
 DB_HOST = os.getenv("DB_HOST")
 DB_USER = os.getenv("DB_USER")
