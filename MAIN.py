@@ -2,6 +2,7 @@ from fastapi import FastAPI
 import os
 import traceback
 
+
 app = FastAPI()
 
 @app.get("/")
@@ -15,11 +16,22 @@ def debug_info():
         "service": "backendfiles-5",
         "endpoints": {
             "root": "GET /",
-            "debug": "GET /debug",
-            "chatbot_health": "GET /chatbot/health",
-            "contact_form_health": "GET /contact_form/health"
+            "debug": "GET /debug"
         }
     }
+
+# Add these test endpoints to verify mounting
+@app.get("/test-mount-chatbot")
+def test_chatbot_mount():
+    return {"chatbot_mounted": "chatbot_app" in globals()}
+
+@app.get("/test-mount-contact")
+def test_contact_mount():
+    return {"contact_form_mounted": "contact_form_app" in globals()}
+
+# Global variables to track mounted apps
+chatbot_app = None
+contact_form_app = None
 
 # Mount apps with comprehensive error handling
 print("🚀 Starting application mounting...")
@@ -27,44 +39,45 @@ print("🚀 Starting application mounting...")
 # Mount Chatbot
 try:
     print("🔄 Importing chatbot...")
-    from chatbot.main import app as chatbot_app
+    from chatbot.main import app as chatbot_app_import
+    chatbot_app = chatbot_app_import
     app.mount("/chatbot", chatbot_app)
     print("✅ Chatbot mounted successfully at /chatbot")
     
-    # Add a fallback health check for chatbot
-    @app.get("/chatbot/health-fallback")
-    def chatbot_health_fallback():
-        return {"status": "chatbot fallback health check"}
-        
 except Exception as e:
     print(f"❌ Failed to mount chatbot: {str(e)}")
     print(f"Chatbot traceback: {traceback.format_exc()}")
-    
-    @app.get("/chatbot/health")
-    def chatbot_fallback():
-        return {"status": "unavailable", "error": "Chatbot failed to load"}
+    chatbot_app = None
 
 # Mount Contact Form
 try:
     print("🔄 Importing contact form...")
-    from contact_form.main1 import app as contact_form_app
+    from contact_form.main1 import app as contact_form_app_import
+    contact_form_app = contact_form_app_import
     app.mount("/contact_form", contact_form_app)
     print("✅ Contact form mounted successfully at /contact_form")
     
-    # Add a fallback health check for contact form
-    @app.get("/contact_form/health-fallback")
-    def contact_form_health_fallback():
-        return {"status": "contact form fallback health check"}
-        
 except Exception as e:
     print(f"❌ Failed to mount contact form: {str(e)}")
     print(f"Contact form traceback: {traceback.format_exc()}")
-    
-    @app.get("/contact_form/health")
-    def contact_form_fallback():
-        return {"status": "unavailable", "error": "Contact form failed to load"}
+    contact_form_app = None
+
+# Add fallback endpoints that will actually work
+@app.get("/chatbot/health")
+def chatbot_health():
+    if chatbot_app is None:
+        return {"status": "unavailable", "error": "Chatbot failed to load during startup"}
+    return {"status": "healthy", "service": "chatbot"}
+
+@app.get("/contact_form/health") 
+def contact_form_health():
+    if contact_form_app is None:
+        return {"status": "unavailable", "error": "Contact form failed to load during startup"}
+    return {"status": "healthy", "service": "contact_form"}
 
 print("🎉 All mounting attempts completed")
+print(f"Chatbot mounted: {chatbot_app is not None}")
+print(f"Contact form mounted: {contact_form_app is not None}")
 
 if __name__ == "__main__":
     import uvicorn
