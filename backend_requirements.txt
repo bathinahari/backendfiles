@@ -8,3 +8,4 @@ twilio
 sqlalchemy
 pymysql
 mysql-connector-python
+python-multipart
