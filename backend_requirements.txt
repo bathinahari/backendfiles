@@ -9,3 +9,4 @@ sqlalchemy
 pymysql
 mysql-connector-python
 python-multipart
+pydantic
